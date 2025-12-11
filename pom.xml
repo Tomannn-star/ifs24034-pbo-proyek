@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.0</version> <!-- Tetap gunakan Spring Boot stabil -->
+		<version>3.4.0</version> <!-- UPGRADE KE VERSI BARU -->
 		<relativePath />
 	</parent>
 
@@ -18,17 +18,15 @@
 	<description>Aplikasi Stock Barang Sederhana</description>
 
 	<properties>
-		<!-- WAJIB JAVA 25 SESUAI KETENTUAN KAMPUS -->
 		<java.version>25</java.version>
 		<maven.compiler.source>25</maven.compiler.source>
 		<maven.compiler.target>25</maven.compiler.target>
-		
-		<!-- Paksa update versi Mockito agar support Java baru -->
-		<mockito.version>5.11.0</mockito.version>
+        <!-- Versi Library Pendukung -->
+        <mockito.version>5.14.2</mockito.version> <!-- Mockito Terbaru -->
+        <byte-buddy.version>1.15.10</byte-buddy.version> <!-- ByteBuddy Terbaru -->
 	</properties>
 
 	<dependencies>
-		<!-- 1. Database -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -38,14 +36,18 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+        
+        <!-- DATABASE H2 (PENTING BUAT TEST) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- 2. Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-
-		<!-- 3. Web & Thymeleaf -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -59,7 +61,6 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
-		<!-- 4. Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -70,8 +71,6 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- 5. DevTools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -82,41 +81,44 @@
 
 	<build>
 		<plugins>
-			<!-- Plugin Maven Spring Boot -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- KONFIGURASI KHUSUS JAVA 25 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>25</source>
-					<target>25</target>
-					<compilerArgs>
-						<arg>--enable-preview</arg> <!-- Aktifkan fitur preview jika perlu -->
-					</compilerArgs>
-				</configuration>
-			</plugin>
+            <!-- Compiler Java 25 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
 
-			<!-- KONFIGURASI TEST AGAR TIDAK ERROR DI JAVA 25 -->
+            <!-- Konfigurasi Test (SOLUSI JAVA 25) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.2.5</version>
-				<configuration>
-					<!-- INI SOLUSINYA: Izinkan ByteBuddy jalan di mode eksperimental -->
-					<argLine>-Dnet.bytebuddy.experimental=true --enable-preview</argLine>
-				</configuration>
+				<version>3.5.2</version> <!-- Update Plugin Test -->
+                <configuration>
+                    <argLine>
+                        -Dnet.bytebuddy.experimental=true 
+                        -Dspring.classformat.ignore=true
+                        --enable-preview
+                        -Xshare:off
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
+                </configuration>
 			</plugin>
 
-			<!-- Plugin JaCoCo -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version>
+				<version>0.8.12</version> <!-- Update JaCoCo -->
 				<executions>
 					<execution>
 						<goals>

@@ -1,2 +1,2 @@
-com\example\inventory\controller\ProductControllerTest.class
-com\example\inventory\service\ProductServiceTest.class
+com/example/inventory/service/ProductServiceTest.class
+com/example/inventory/controller/ProductControllerTest.class

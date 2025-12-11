@@ -1,5 +1,6 @@
 package com.example.inventory.controller;
 
+import com.example.inventory.InventorySystemApplication; // 1. IMPORT FILE MAIN ANDA (Sesuaikan namanya)
 import com.example.inventory.entity.User;
 import com.example.inventory.repository.UserRepository;
 import com.example.inventory.service.ProductService;
@@ -18,12 +19,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@SpringBootTest
+// 2. TAMBAHKAN (classes = InventorySystemApplication.class)
+@SpringBootTest(classes = InventorySystemApplication.class) 
 @AutoConfigureMockMvc
 public class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    // ... (Sisa kode ke bawah biarkan tetap sama) ...
 
     @MockBean
     private ProductService productService;

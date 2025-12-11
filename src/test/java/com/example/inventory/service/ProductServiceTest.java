@@ -31,7 +31,7 @@ class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-    @Test
+   @Test
     void testAddProduct_Success() throws IOException {
         // 1. Siapkan Data Palsu (Mock)
         ProductRequest request = new ProductRequest();
@@ -39,6 +39,11 @@ class ProductServiceTest {
         request.setStock(10);
         request.setPrice(15000.0);
         request.setUnit("Kg");
+        
+        // --- WAJIB ADA BARIS INI ---
+        request.setCapitalPrice(12000.0); 
+        // ---------------------------
+
         // Mock file gambar
         MockMultipartFile image = new MockMultipartFile("imageFile", "test.jpg", "image/jpeg", "test data".getBytes());
         request.setImageFile(image);
@@ -47,17 +52,14 @@ class ProductServiceTest {
         savedProduct.setId(1L);
         savedProduct.setName("Beras");
 
-        // 2. Ajari Mockito apa yang harus dilakukan
         when(fileStorageService.storeFile(any())).thenReturn("uuid-test.jpg");
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
-        // 3. Jalankan Method yang mau dites
         Product result = productService.addProduct(request);
 
-        // 4. Verifikasi (Assert)
         assertNotNull(result);
         assertEquals("Beras", result.getName());
-        verify(productRepository, times(1)).save(any(Product.class)); // Pastikan save dipanggil 1x
+        verify(productRepository, times(1)).save(any(Product.class));
     }
 
     @Test
