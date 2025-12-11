@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Easy Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .img-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .bg-supplier { background-color: #e3f2fd; } 
+        .brand-title { font-weight: 800; color: #2c3e50; }
+        
+        /* Animasi Berkedip untuk Notifikasi */
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink { animation: blinker 1.5s linear infinite; }
+
+        /* Style untuk Lonceng */
+        .notification-btn { position: relative; cursor: pointer; margin-right: 15px; }
+        .notification-dot {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1"><i class="fas fa-boxes"></i> Easy Stock</span>
+        
+        <div class="d-flex align-items-center">
+            
+            <div class="notification-btn text-white" title="Notifikasi Stok">
+                <i class="fas fa-bell fa-lg"></i>
+                
+                <span th:if="${userRole == 'SELLER' && notificationCount > 0}" 
+                      class="notification-dot blink"></span>
+            </div>
+
+            <!-- Profil User -->
+            <div class="text-white d-flex align-items-center gap-2 me-3">
+                <span>Halo, <b th:text="${username}">User</b></span>
+                <span class="badge bg-success" th:text="${userRole}">ROLE</span>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mb-5">
+
+    <!-- ALERT NOTIFIKASI (Opsional: Muncul jika ada notif) -->
+    <div th:if="${userRole == 'SELLER' && notificationCount > 0}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-bell"></i> Anda memiliki <b><span th:text="${notificationCount}"></span> barang baru</b> dari Supplier yang belum diatur harganya!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- BAGIAN 1: GRAFIK (KHUSUS SELLER) -->
+    <div th:if="${userRole == 'SELLER'}" class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-bold">
+            <i class="fas fa-chart-line"></i> Grafik Stok Barang
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAGIAN 2: FORM INPUT (KHUSUS SUPPLIER) -->
+    <div th:if="${userRole == 'SUPPLIER'}" class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-truck-loading"></i> Input Barang Masuk (Area Supplier)
+            </h5>
+        </div>
+        <div class="card-body bg-supplier">
+            <form th:action="@{/products/save}" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Nama Barang</label>
+                        <input type="text" name="name" class="form-control" placeholder="Contoh: Beras 5kg" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Kategori</label>
+                        <input type="text" name="category" class="form-control" placeholder="Contoh: Sembako" required>
+                    </div>
+                    
+                    <div class="col-md-4 mb-2">
+                        <label class="fw-bold text-primary">Harga Penawaran / Modal</label>
+                        <input type="number" name="capitalPrice" class="form-control" placeholder="Rp..." required>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="fw-bold">Stok</label>
+                        <input type="number" name="stock" class="form-control" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="fw-bold">Satuan</label>
+                        <select name="unit" class="form-select">
+                            <option value="Pcs">Pcs</option>
+                            <option value="Batang">Batang</option>
+                            <option value="Botol">Botol</option>
+                            <option value="Pouch">Pouch</option>
+                            <option value="Bungkus">Bungkus</option>
+                            <option value="Sachet">Sachet</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Tabung">Tabung</option>
+                            <option value="Liter">Liter</option>
+                            <option value="Karton">Karton</option>
+                            <option value="Karung">Karung</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <label>Foto Barang</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*">
+                    </div>
+                     <div class="col-md-12 mb-2">
+                        <label>Deskripsi</label>
+                        <input type="text" name="description" class="form-control" placeholder="Keterangan barang...">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-2">
+                    <i class="fas fa-paper-plane"></i> Kirim Stok ke Seller
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BAGIAN 3: TABEL DATA (SELLER ONLY) -->
+    <div th:if="${userRole == 'SELLER'}" class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-warehouse"></i> Daftar Stock Gudang</span>
+        </div>
+        
+        <div class="card-body">
+            
+            <form th:action="@{/products}" method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="keyword" class="form-control" placeholder="Cari nama barang atau kategori..." th:value="${keyword}">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Cari</button>
+                    <a th:href="@{/products}" class="btn btn-secondary" title="Reset"><i class="fas fa-sync-alt"></i></a>
+                </div>
+            </form>
+
+            <table class="table table-striped align-middle">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Gambar</th>
+                        <th>Nama Barang</th>
+                        <th>Modal (Supplier)</th>
+                        <th>Stok</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${listProducts}">
+                        <!-- 1. GAMBAR -->
+                        <td>
+                            <img th:if="${product.imagePath != null}" th:src="@{'/' + ${product.imagePath}}" class="img-thumb">
+                            <span th:unless="${product.imagePath != null}" class="text-muted small">No Img</span>
+                        </td>
+
+                        <td class="position-relative">
+                            <span th:text="${product.name}" class="fw-bold"></span>
+                            
+                            <span th:if="${product.price == 0}" 
+                                  class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle blink"
+                                  title="Barang Baru">
+                                <span class="visually-hidden">New alert</span>
+                            </span>
+                            
+                            <div th:if="${product.price == 0}" style="font-size: 0.7rem;" class="text-danger fw-bold">
+                                *Baru Masuk
+                            </div>
+                        </td>
+
+                        <!-- 3. HARGA MODAL -->
+                        <td class="text-primary" th:text="'Rp ' + ${#numbers.formatDecimal(product.capitalPrice ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
+                         
+                        <!-- 4. STOK -->
+                        <td>
+                            <span th:text="${product.stock} + ' ' + ${product.unit}"></span>
+                            <span th:if="${product.stock < 10}" class="badge bg-danger">Low</span>
+                        </td>
+                        
+                        <!-- 5. AKSI -->
+                        <td class="text-center">
+                            <a th:href="@{/products/detail/{id}(id=${product.id})}" class="btn btn-info btn-sm text-white" title="Lihat Detail"><i class="fas fa-eye"></i></a>
+                            
+                            <span th:if="${userRole == 'SELLER'}">
+                                <a th:if="${product.price == 0}" th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-success btn-sm" title="Atur Harga"><i class="fas fa-tag"></i> Atur</a>
+                                <a th:if="${product.price > 0}" th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning btn-sm text-white" title="Edit"><i class="fas fa-edit"></i></a>
+                                
+                                <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')"><i class="fas fa-trash"></i></a>
+                            </span>
+                        </td>
+                    </tr>
+                    
+                    <tr th:if="${#lists.isEmpty(listProducts)}">
+                        <td colspan="5" class="text-center text-muted py-3">
+                            <i class="fas fa-search"></i> Barang tidak ditemukan.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div th:if="${userRole == 'SUPPLIER'}" class="alert alert-info text-center">
+        <h4><i class="fas fa-check-circle"></i> Terima Kasih, Partner!</h4>
+        <p>Anda login sebagai Supplier. Anda hanya memiliki akses untuk <b>Menyetor Barang (Input Stok)</b>.</p>
+        <p>Untuk melihat laporan penjualan atau stok gudang, silakan hubungi Admin (Seller).</p>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:if="${userRole == 'SELLER'}" th:inline="javascript">
+    var labelsFromJava = /*[[${chartLabels}]]*/ [];
+    var dataFromJava = /*[[${chartData}]]*/ [];
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labelsFromJava,
+            datasets: [{
+                label: 'Jumlah Stok',
+                data: dataFromJava,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+</script>
+
+</body>
+</html>

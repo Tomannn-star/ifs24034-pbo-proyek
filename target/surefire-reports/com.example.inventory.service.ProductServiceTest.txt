@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: com.example.inventory.service.ProductServiceTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.057 s <<< FAILURE! -- in com.example.inventory.service.ProductServiceTest
+com.example.inventory.service.ProductServiceTest.testAddProduct_Success -- Time elapsed: 0.048 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "java.lang.Double.doubleValue()" because the return value of "com.example.inventory.dto.ProductRequest.getCapitalPrice()" is null
+	at com.example.inventory.service.ProductService.addProduct(ProductService.java:49)
+	at com.example.inventory.service.ProductServiceTest.testAddProduct_Success(ProductServiceTest.java:55)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+

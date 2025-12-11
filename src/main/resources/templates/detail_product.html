@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detail Barang - Easy Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow col-md-10 mx-auto">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Detail Barang</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Kolom Gambar -->
+                <div class="col-md-5 text-center">
+                    <img th:if="${product.imagePath != null}" th:src="@{'/' + ${product.imagePath}}" 
+                         class="img-fluid rounded border shadow-sm" style="max-height: 400px;">
+                    <div th:unless="${product.imagePath != null}" class="alert alert-warning">
+                        <i class="fas fa-image"></i> Tidak ada foto barang
+                    </div>
+                </div>
+
+                <!-- Kolom Data -->
+                <div class="col-md-7">
+                    <h2 th:text="${product.name}" class="fw-bold text-dark">Nama Barang</h2>
+                    <span class="badge bg-secondary mb-3 fs-6" th:text="${product.category}">Kategori</span>
+                    
+                    <table class="table table-borderless mt-3">
+                        <tr class="border-bottom">
+                            <th><i class="fas fa-tag text-primary"></i> Harga Modal (Supplier):</th>
+                            <td class="text-primary fw-bold fs-5" th:text="'Rp ' + ${#numbers.formatDecimal(product.capitalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <th><i class="fas fa-money-bill-wave text-success"></i> Harga Jual (Seller):</th>
+                            <td class="text-success fw-bold fs-4" th:text="'Rp ' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')}"></td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-cubes"></i> Stok Gudang:</th>
+                            <td>
+                                <span th:text="${product.stock} + ' ' + ${product.unit}" class="fw-bold"></span>
+                                <span th:if="${product.stock < 10}" class="badge bg-danger ms-2">Low Stock</span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th><i class="fas fa-align-left"></i> Deskripsi:</th>
+                            <td th:text="${product.description ?: '-'}"></td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-clock"></i> Tgl Masuk:</th>
+                            <td th:text="${#temporals.format(product.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        </tr>
+                    </table>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <a th:href="@{/products}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+                        <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning text-white"><i class="fas fa-edit"></i> Ubah Data</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
