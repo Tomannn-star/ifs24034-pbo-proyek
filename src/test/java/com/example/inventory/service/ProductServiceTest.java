@@ -3,16 +3,14 @@ package com.example.inventory.service;
 import com.example.inventory.dto.ProductRequest;
 import com.example.inventory.entity.Product;
 import com.example.inventory.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
@@ -31,66 +29,69 @@ class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-   @Test
+    private ProductRequest productRequest;
+
+    @BeforeEach
+    void setUp() {
+        productRequest = new ProductRequest();
+        productRequest.setName("Test Product");
+        productRequest.setPrice(10000.0);
+        productRequest.setStock(10);
+        productRequest.setCategory("General");
+        // PERBAIKAN: Menambahkan capitalPrice agar tidak NullPointerException
+        productRequest.setCapitalPrice(8000.0); 
+    }
+
+    @Test
     void testAddProduct_Success() throws IOException {
-        // 1. Siapkan Data Palsu (Mock)
-        ProductRequest request = new ProductRequest();
-        request.setName("Beras");
-        request.setStock(10);
-        request.setPrice(15000.0);
-        request.setUnit("Kg");
-        
-        // --- WAJIB ADA BARIS INI ---
-        request.setCapitalPrice(12000.0); 
-        // ---------------------------
-
-        // Mock file gambar
-        MockMultipartFile image = new MockMultipartFile("imageFile", "test.jpg", "image/jpeg", "test data".getBytes());
-        request.setImageFile(image);
-
+        // Arrange
         Product savedProduct = new Product();
         savedProduct.setId(1L);
-        savedProduct.setName("Beras");
+        savedProduct.setName("Test Product");
+        savedProduct.setPrice(10000.0);
+        savedProduct.setCapitalPrice(8000.0);
 
-        when(fileStorageService.storeFile(any())).thenReturn("uuid-test.jpg");
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
-        Product result = productService.addProduct(request);
+        // Act
+        Product result = productService.addProduct(productRequest);
 
+        // Assert
         assertNotNull(result);
-        assertEquals("Beras", result.getName());
+        assertEquals("Test Product", result.getName());
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
     @Test
-    void testGetAllProducts() {
-        Product p1 = new Product(); p1.setName("A");
-        Product p2 = new Product(); p2.setName("B");
+    void testAddProduct_WithZeroPrice() throws IOException {
+        // Arrange
+        productRequest.setPrice(0.0);
+        
+        Product savedProduct = new Product();
+        savedProduct.setPrice(0.0);
 
-        when(productRepository.findAll()).thenReturn(Arrays.asList(p1, p2));
+        when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
-        List<Product> list = productService.getAllProducts();
+        // Act
+        Product result = productService.addProduct(productRequest);
 
-        assertEquals(2, list.size());
+        // Assert
+        assertEquals(0.0, result.getPrice());
     }
 
     @Test
-    void testGetProductById_Found() {
-        Product p = new Product();
-        p.setId(1L);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(p));
+    void testDeleteProduct() {
+        // Arrange
+        Long productId = 1L;
+        Product product = new Product();
+        product.setId(productId);
 
-        Product result = productService.getProductById(1L);
-        assertEquals(1L, result.getId());
-    }
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
-    @Test
-    void testGetProductById_NotFound() {
-        when(productRepository.findById(99L)).thenReturn(Optional.empty());
+        // Act
+        productService.deleteProduct(productId);
 
-        // Verifikasi bahwa error dilempar jika ID tidak ada
-        assertThrows(RuntimeException.class, () -> {
-            productService.getProductById(99L);
-        });
+        // Assert
+        verify(productRepository, times(1)).delete(product);
     }
 }

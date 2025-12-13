@@ -24,12 +24,13 @@ public class SecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         // PERBAIKAN DI SINI:
-        // Gunakan konstruktor kosong ()
+        // Gunakan kurung kosong () karena ini Spring Boot 3.4.1
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         
-        // Lalu set userDetailsService menggunakan method setter
+        // Set userDetailsService lewat method setter
         authProvider.setUserDetailsService(userDetailsService);
         
+        // Set passwordEncoder lewat method setter
         authProvider.setPasswordEncoder(passwordEncoder);
         
         return authProvider;

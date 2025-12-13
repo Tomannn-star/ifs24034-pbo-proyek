@@ -4,10 +4,12 @@ import com.example.inventory.entity.User;
 import com.example.inventory.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile; // WAJIB ADA
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!test") // Hanya jalan jika BUKAN mode test
 public class DataSeeder implements CommandLineRunner {
 
     @Autowired
@@ -18,11 +20,9 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Cek apakah user 'admin' sudah ada? Jika belum, buat baru.
         if (userRepository.findByUsername("admin").isEmpty()) {
             User user = new User();
             user.setUsername("admin");
-            // Password 'admin123' dienkripsi
             user.setPassword(passwordEncoder.encode("admin123")); 
             user.setRole("ADMIN");
             

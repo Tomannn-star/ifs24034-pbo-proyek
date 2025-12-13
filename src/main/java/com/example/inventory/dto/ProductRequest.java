@@ -65,7 +65,7 @@ public class ProductRequest {
         return description;
     }
 
-    public void setDescripion(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.0</version> <!-- UPGRADE KE VERSI BARU -->
+		<version>3.4.1</version> <!-- Versi Stabil Terbaru -->
 		<relativePath />
 	</parent>
 
@@ -18,15 +18,18 @@
 	<description>Aplikasi Stock Barang Sederhana</description>
 
 	<properties>
+		<!-- Java 25 Compatibility Settings -->
 		<java.version>25</java.version>
 		<maven.compiler.source>25</maven.compiler.source>
 		<maven.compiler.target>25</maven.compiler.target>
-        <!-- Versi Library Pendukung -->
-        <mockito.version>5.14.2</mockito.version> <!-- Mockito Terbaru -->
-        <byte-buddy.version>1.15.10</byte-buddy.version> <!-- ByteBuddy Terbaru -->
+		
+		<!-- Library Testing Update -->
+		<mockito.version>5.14.2</mockito.version>
+		<byte-buddy.version>1.15.11</byte-buddy.version>
 	</properties>
 
 	<dependencies>
+		<!-- 1. Database -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -36,18 +39,20 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-        
-        <!-- DATABASE H2 (PENTING BUAT TEST) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
+		<!-- Database H2 untuk Testing -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 
+		<!-- 2. Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+
+		<!-- 3. Web & Thymeleaf -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -61,6 +66,7 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
+		<!-- 4. Testing (LENGKAP) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -71,6 +77,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test-autoconfigure</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- 5. DevTools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -86,39 +99,39 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-            <!-- Compiler Java 25 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                    <target>25</target>
-                    <compilerArgs>
-                        <arg>--enable-preview</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
+			<!-- Compiler Java 25 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>25</source>
+					<target>25</target>
+					<compilerArgs>
+						<arg>--enable-preview</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
 
-            <!-- Konfigurasi Test (SOLUSI JAVA 25) -->
+			<!-- Surefire (Test Runner) untuk Java 25 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version> <!-- Update Plugin Test -->
-                <configuration>
-                    <argLine>
-                        -Dnet.bytebuddy.experimental=true 
-                        -Dspring.classformat.ignore=true
-                        --enable-preview
-                        -Xshare:off
-                        -XX:+EnableDynamicAgentLoading
-                    </argLine>
-                </configuration>
+				<version>3.5.2</version>
+				<configuration>
+					<argLine>
+						-Dnet.bytebuddy.experimental=true 
+						-Dspring.classformat.ignore=true
+						--enable-preview
+						-Xshare:off
+						-XX:+EnableDynamicAgentLoading
+					</argLine>
+				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version> <!-- Update JaCoCo -->
+				<version>0.8.12</version>
 				<executions>
 					<execution>
 						<goals>
@@ -133,14 +146,6 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<excludes>
-						<exclude>**/entity/**</exclude>
-						<exclude>**/dto/**</exclude>
-						<exclude>**/config/**</exclude>
-						<exclude>**/InventorySystemApplication.class</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
