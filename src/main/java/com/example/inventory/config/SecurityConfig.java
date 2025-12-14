@@ -4,33 +4,34 @@ import com.example.inventory.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider; // Tambahkan ini untuk return type yang lebih umum
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.userdetails.UserDetailsService; // Tambahkan ini
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Ubah tipe injeksi menjadi Interface UserDetailsService agar lebih aman
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService; 
+    
+    // Atau jika tetap ingin pakai CustomUserDetailsService, pastikan class itu implements UserDetailsService
 
-    // Inject PasswordEncoder dari Main Class
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        // PERBAIKAN DI SINI:
-        // Gunakan kurung kosong () karena ini Spring Boot 3.4.1
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         
-        // Set userDetailsService lewat method setter
+        // Error di sini akan hilang jika userDetailsService implements UserDetailsService
         authProvider.setUserDetailsService(userDetailsService);
         
-        // Set passwordEncoder lewat method setter
         authProvider.setPasswordEncoder(passwordEncoder);
         
         return authProvider;
